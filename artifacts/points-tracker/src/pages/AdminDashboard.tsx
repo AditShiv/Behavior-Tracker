@@ -6,12 +6,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { 
   PlusCircle, MinusCircle, ShieldAlert, Check, X,
-  Coins, History, MessagesSquare, ArrowRight, Loader2
+  Coins, History, MessagesSquare, ArrowRight, Loader2, Gift, SendHorizontal
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAdjustPoints, useGetMyPoints, useGetPointsHistory } from "@/hooks/use-points";
-import { useListRedemptions, useReviewRedemption } from "@/hooks/use-redemptions";
+import { useListRedemptions, useReviewRedemption, useMarkRedemptionDonated } from "@/hooks/use-redemptions";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,6 @@ const adjustSchema = z.object({
 });
 
 export function AdminDashboard() {
-  const { data: pointsData } = useGetMyPoints(); // Might return admin's points or 0 if backend isn't mapped, but we render it
   const { data: historyData } = useGetPointsHistory();
   const { data: redemptionsData } = useListRedemptions();
   
@@ -59,6 +58,7 @@ export function AdminDashboard() {
   }
 
   const pendingRedemptions = redemptionsData?.redemptions.filter(r => r.status === "pending") || [];
+  const needsDonation = redemptionsData?.redemptions.filter(r => r.status === "accepted" && !r.donated) || [];
   const completedRedemptions = redemptionsData?.redemptions.filter(r => r.status !== "pending") || [];
 
   return (
@@ -192,10 +192,35 @@ export function AdminDashboard() {
 
       </div>
 
+      {/* Needs Donation Section */}
+      {needsDonation.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="glass-panel p-6 border-amber-500/30 bg-amber-500/5">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="p-2 bg-amber-500/20 rounded-lg">
+                <Gift className="w-6 h-6 text-amber-400" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold font-display text-amber-400">Robux to Send</h2>
+                <p className="text-sm text-muted-foreground">You accepted these — still need to send in Roblox.</p>
+              </div>
+              <Badge className="ml-auto bg-amber-500/20 text-amber-400 border-amber-500/30">
+                {needsDonation.length} pending
+              </Badge>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {needsDonation.map(r => (
+                <DonateCard key={r.id} redemption={r} />
+              ))}
+            </div>
+          </Card>
+        </motion.div>
+      )}
+
       <Tabs defaultValue="history" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-[400px] h-12 bg-background/50 p-1 border border-white/10">
           <TabsTrigger value="history" className="text-base rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Activity History</TabsTrigger>
-          <TabsTrigger value="reviewed" className="text-base rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Reviewed Requests</TabsTrigger>
+          <TabsTrigger value="reviewed" className="text-base rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All Requests</TabsTrigger>
         </TabsList>
         
         <TabsContent value="history" className="mt-6">
@@ -233,14 +258,24 @@ export function AdminDashboard() {
               <div className="space-y-4">
                 {completedRedemptions.slice().reverse().map(r => (
                   <div key={r.id} className="flex items-center justify-between p-4 rounded-xl bg-background/30 border border-white/5">
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="font-bold font-display text-lg">{r.robuxAmount} Robux</p>
                       <p className="text-sm text-muted-foreground">Requested on {format(new Date(r.createdAt), "MMM d, yyyy")}</p>
                       {r.note && <p className="text-sm text-foreground/80 mt-1 italic border-l-2 border-white/20 pl-2">"{r.note}"</p>}
+                      {r.status === "accepted" && r.donated && r.donatedAt && (
+                        <p className="text-xs text-success mt-1">Sent on {format(new Date(r.donatedAt), "MMM d, yyyy 'at' h:mm a")}</p>
+                      )}
                     </div>
-                    <Badge variant="outline" className={`px-3 py-1 ${r.status === 'accepted' ? 'border-success text-success bg-success/10' : 'border-destructive text-destructive bg-destructive/10'}`}>
-                      {r.status.toUpperCase()}
-                    </Badge>
+                    <div className="flex flex-col items-end gap-2 ml-4">
+                      <Badge variant="outline" className={`px-3 py-1 ${r.status === 'accepted' ? 'border-success text-success bg-success/10' : 'border-destructive text-destructive bg-destructive/10'}`}>
+                        {r.status.toUpperCase()}
+                      </Badge>
+                      {r.status === "accepted" && (
+                        <Badge variant="outline" className={`px-3 py-1 text-xs ${r.donated ? 'border-success text-success bg-success/10' : 'border-amber-500 text-amber-400 bg-amber-500/10'}`}>
+                          {r.donated ? "SENT" : "NOT SENT"}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -343,5 +378,51 @@ function ReviewCard({ redemption }: { redemption: any }) {
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function DonateCard({ redemption }: { redemption: any }) {
+  const { mutate: markDonated, isPending } = useMarkRedemptionDonated();
+
+  function handleDonate() {
+    markDonated(
+      { id: redemption.id },
+      {
+        onSuccess: () => {
+          toast.success("Marked as Sent!", {
+            description: `${redemption.robuxAmount} Robux marked as donated.`
+          });
+        },
+        onError: (err) => {
+          toast.error("Failed to mark as donated", { description: err.message });
+        }
+      }
+    );
+  }
+
+  return (
+    <div className="p-4 rounded-xl bg-background/40 border border-amber-500/20">
+      <div className="flex justify-between items-start mb-3">
+        <div>
+          <p className="font-bold font-display text-xl text-amber-300">{redemption.robuxAmount} R$</p>
+          <p className="text-sm text-muted-foreground">Accepted {format(new Date(redemption.reviewedAt), "MMM d, yyyy")}</p>
+        </div>
+        <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-xs">NEEDS SENDING</Badge>
+      </div>
+      {redemption.note && (
+        <p className="text-xs text-foreground/70 italic mb-3 border-l-2 border-amber-500/30 pl-2">"{redemption.note}"</p>
+      )}
+      <Button
+        onClick={handleDonate}
+        disabled={isPending}
+        className="w-full h-10 bg-amber-500 hover:bg-amber-400 text-black font-bold shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+      >
+        {isPending ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <><SendHorizontal className="w-4 h-4 mr-2" /> Mark as Sent</>
+        )}
+      </Button>
+    </div>
   );
 }

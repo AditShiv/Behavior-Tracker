@@ -18,4 +18,7 @@ export interface Redemption {
   createdAt: Date;
   /** @nullable */
   reviewedAt?: Date | null;
+  donated: boolean;
+  /** @nullable */
+  donatedAt?: Date | null;
 }

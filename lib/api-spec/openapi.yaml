@@ -241,6 +241,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Redemption"
+  /redemptions/{id}/donate:
+    post:
+      operationId: markRedemptionDonated
+      tags: [redemptions]
+      summary: Mark an accepted redemption as donated (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Redemption marked as donated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Redemption"
   /notifications:
     get:
       operationId: listNotifications
@@ -440,7 +458,7 @@ components:
           type: string
     Redemption:
       type: object
-      required: [id, userId, robuxAmount, pointsCost, status, createdAt]
+      required: [id, userId, robuxAmount, pointsCost, status, createdAt, donated]
       properties:
         id:
           type: integer
@@ -459,6 +477,11 @@ components:
           type: string
           format: date-time
         reviewedAt:
+          type: [string, 'null']
+          format: date-time
+        donated:
+          type: boolean
+        donatedAt:
           type: [string, 'null']
           format: date-time
     RedemptionList:

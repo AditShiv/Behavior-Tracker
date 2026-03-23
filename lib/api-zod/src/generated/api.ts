@@ -144,6 +144,8 @@ export const ListRedemptionsResponse = zod.object({
       note: zod.string().nullish(),
       createdAt: zod.date(),
       reviewedAt: zod.date().nullish(),
+      donated: zod.boolean(),
+      donatedAt: zod.date().nullish(),
     }),
   ),
 });
@@ -177,6 +179,28 @@ export const ReviewRedemptionResponse = zod.object({
   note: zod.string().nullish(),
   createdAt: zod.date(),
   reviewedAt: zod.date().nullish(),
+  donated: zod.boolean(),
+  donatedAt: zod.date().nullish(),
+});
+
+/**
+ * @summary Mark an accepted redemption as donated (admin only)
+ */
+export const MarkRedemptionDonatedParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const MarkRedemptionDonatedResponse = zod.object({
+  id: zod.number(),
+  userId: zod.string(),
+  robuxAmount: zod.number(),
+  pointsCost: zod.number(),
+  status: zod.enum(["pending", "accepted", "denied"]),
+  note: zod.string().nullish(),
+  createdAt: zod.date(),
+  reviewedAt: zod.date().nullish(),
+  donated: zod.boolean(),
+  donatedAt: zod.date().nullish(),
 });
 
 /**
@@ -214,6 +238,7 @@ export const MarkNotificationReadResponse = zod.object({
  */
 export const GetCousinIdResponse = zod.object({
   cousinId: zod.string().nullable(),
+  adminId: zod.string().nullish(),
 });
 
 /**
@@ -225,4 +250,12 @@ export const SetCousinIdBody = zod.object({
 
 export const SetCousinIdResponse = zod.object({
   cousinId: zod.string().nullable(),
+  adminId: zod.string().nullish(),
+});
+
+/**
+ * @summary Claim admin role (only works if no admin is set yet)
+ */
+export const ClaimAdminResponse = zod.object({
+  adminId: zod.string(),
 });

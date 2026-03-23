@@ -93,6 +93,9 @@ export interface Redemption {
   createdAt: string;
   /** @nullable */
   reviewedAt?: string | null;
+  donated: boolean;
+  /** @nullable */
+  donatedAt?: string | null;
 }
 
 export interface RedemptionList {
@@ -133,6 +136,12 @@ export interface NotificationList {
 export interface CousinInfo {
   /** @nullable */
   cousinId: string | null;
+  /** @nullable */
+  adminId?: string | null;
+}
+
+export interface AdminInfo {
+  adminId: string;
 }
 
 export interface SetCousinBody {

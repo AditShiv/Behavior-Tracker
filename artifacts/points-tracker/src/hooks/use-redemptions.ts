@@ -3,6 +3,7 @@ import {
   useListRedemptions as generatedUseListRedemptions,
   useCreateRedemption as generatedUseCreateRedemption,
   useReviewRedemption as generatedUseReviewRedemption,
+  useMarkRedemptionDonated as generatedUseMarkRedemptionDonated,
   getListRedemptionsQueryKey,
   getGetMyPointsQueryKey,
   getGetPointsHistoryQueryKey
@@ -37,9 +38,19 @@ export function useReviewRedemption() {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListRedemptionsQueryKey() });
-        // The cousin's points/history might change if accepted, but we are admin here.
-        // It's still good practice to invalidate in case admin fetches history
         queryClient.invalidateQueries({ queryKey: getGetPointsHistoryQueryKey() });
+      }
+    }
+  });
+}
+
+export function useMarkRedemptionDonated() {
+  const queryClient = useQueryClient();
+  
+  return generatedUseMarkRedemptionDonated({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListRedemptionsQueryKey() });
       }
     }
   });

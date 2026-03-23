@@ -18,6 +18,7 @@ import type {
 
 import type {
   AdjustPointsBody,
+  AdminInfo,
   AuthUserEnvelope,
   BeginBrowserLoginParams,
   CousinInfo,
@@ -1132,6 +1133,90 @@ export const useReviewRedemption = <
 };
 
 /**
+ * @summary Mark an accepted redemption as donated (admin only)
+ */
+export const getMarkRedemptionDonatedUrl = (id: number) => {
+  return `/api/redemptions/${id}/donate`;
+};
+
+export const markRedemptionDonated = async (
+  id: number,
+  options?: RequestInit,
+): Promise<Redemption> => {
+  return customFetch<Redemption>(getMarkRedemptionDonatedUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getMarkRedemptionDonatedMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markRedemptionDonated>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof markRedemptionDonated>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["markRedemptionDonated"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof markRedemptionDonated>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return markRedemptionDonated(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type MarkRedemptionDonatedMutationResult = NonNullable<
+  Awaited<ReturnType<typeof markRedemptionDonated>>
+>;
+
+export type MarkRedemptionDonatedMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Mark an accepted redemption as donated (admin only)
+ */
+export const useMarkRedemptionDonated = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markRedemptionDonated>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof markRedemptionDonated>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getMarkRedemptionDonatedMutationOptions(options));
+};
+
+/**
  * @summary Get notifications for current user
  */
 export const getListNotificationsUrl = () => {
@@ -1449,4 +1534,83 @@ export const useSetCousinId = <
   TContext
 > => {
   return useMutation(getSetCousinIdMutationOptions(options));
+};
+
+/**
+ * @summary Claim admin role (only works if no admin is set yet)
+ */
+export const getClaimAdminUrl = () => {
+  return `/api/admin/claim`;
+};
+
+export const claimAdmin = async (options?: RequestInit): Promise<AdminInfo> => {
+  return customFetch<AdminInfo>(getClaimAdminUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getClaimAdminMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof claimAdmin>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof claimAdmin>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["claimAdmin"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof claimAdmin>>,
+    void
+  > = () => {
+    return claimAdmin(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ClaimAdminMutationResult = NonNullable<
+  Awaited<ReturnType<typeof claimAdmin>>
+>;
+
+export type ClaimAdminMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Claim admin role (only works if no admin is set yet)
+ */
+export const useClaimAdmin = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof claimAdmin>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof claimAdmin>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getClaimAdminMutationOptions(options));
 };

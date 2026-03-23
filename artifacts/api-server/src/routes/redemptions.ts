@@ -11,8 +11,11 @@ async function getCousinId(): Promise<string | null> {
   return rows[0]?.value ?? null;
 }
 
-function getAdminId(): string {
-  return process.env.ADMIN_USER_ID ?? "";
+async function getAdminId(): Promise<string> {
+  const envId = process.env.ADMIN_USER_ID;
+  if (envId) return envId;
+  const rows = await db.select().from(appConfigTable).where(eq(appConfigTable.key, "admin_id"));
+  return rows[0]?.value ?? "";
 }
 
 function formatRedemption(r: typeof redemptionsTable.$inferSelect) {
@@ -25,6 +28,8 @@ function formatRedemption(r: typeof redemptionsTable.$inferSelect) {
     note: r.note ?? null,
     createdAt: r.createdAt.toISOString(),
     reviewedAt: r.reviewedAt ? r.reviewedAt.toISOString() : null,
+    donated: r.donated,
+    donatedAt: r.donatedAt ? r.donatedAt.toISOString() : null,
   };
 }
 
@@ -33,7 +38,7 @@ router.get("/redemptions", async (req: Request, res: Response) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const adminId = getAdminId();
+  const adminId = await getAdminId();
   let redemptions;
   if (req.user.id === adminId) {
     redemptions = await db.select().from(redemptionsTable).orderBy(redemptionsTable.createdAt);
@@ -74,7 +79,7 @@ router.post("/redemptions", async (req: Request, res: Response) => {
     status: "pending",
   }).returning();
 
-  const adminId = getAdminId();
+  const adminId = await getAdminId();
   if (adminId) {
     await db.insert(notificationsTable).values({
       userId: adminId,
@@ -90,7 +95,7 @@ router.post("/redemptions/:id/review", async (req: Request, res: Response) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const adminId = getAdminId();
+  const adminId = await getAdminId();
   if (req.user.id !== adminId) {
     res.status(403).json({ error: "Only admin can review redemptions" });
     return;
@@ -127,7 +132,7 @@ router.post("/redemptions/:id/review", async (req: Request, res: Response) => {
     });
     const msg = note
       ? `Your Robux redemption of ${existing[0].robuxAmount} Robux was accepted! Note: "${note}"`
-      : `Your Robux redemption of ${existing[0].robuxAmount} Robux was accepted!`;
+      : `Your Robux redemption of ${existing[0].robuxAmount} Robux was accepted! The Robux will be sent to you soon.`;
     await db.insert(notificationsTable).values({ userId: cousinId, message: msg });
   } else {
     const msg = note
@@ -135,6 +140,45 @@ router.post("/redemptions/:id/review", async (req: Request, res: Response) => {
       : `Your Robux redemption of ${existing[0].robuxAmount} Robux was denied.`;
     await db.insert(notificationsTable).values({ userId: cousinId, message: msg });
   }
+
+  res.json(formatRedemption(updated));
+});
+
+router.post("/redemptions/:id/donate", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const adminId = await getAdminId();
+  if (req.user.id !== adminId) {
+    res.status(403).json({ error: "Only admin can mark as donated" });
+    return;
+  }
+
+  const id = parseInt(req.params.id);
+  const existing = await db.select().from(redemptionsTable).where(eq(redemptionsTable.id, id));
+  if (!existing[0]) {
+    res.status(404).json({ error: "Redemption not found" });
+    return;
+  }
+  if (existing[0].status !== "accepted") {
+    res.status(400).json({ error: "Only accepted redemptions can be marked as donated" });
+    return;
+  }
+  if (existing[0].donated) {
+    res.status(400).json({ error: "Already marked as donated" });
+    return;
+  }
+
+  const [updated] = await db.update(redemptionsTable)
+    .set({ donated: true, donatedAt: new Date() })
+    .where(eq(redemptionsTable.id, id))
+    .returning();
+
+  await db.insert(notificationsTable).values({
+    userId: existing[0].userId,
+    message: `Your ${existing[0].robuxAmount} Robux has been sent to you! Check your Roblox account.`,
+  });
 
   res.json(formatRedemption(updated));
 });

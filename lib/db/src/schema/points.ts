@@ -26,6 +26,8 @@ export const redemptionsTable = pgTable("redemptions", {
   note: text("note"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  donated: boolean("donated").notNull().default(false),
+  donatedAt: timestamp("donated_at", { withTimezone: true }),
 });
 
 export const notificationsTable = pgTable("notifications", {

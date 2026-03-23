@@ -7,6 +7,7 @@
  */
 
 export * from "./adjustPointsBody";
+export * from "./adminInfo";
 export * from "./authorizationSessionHeaderParameter";
 export * from "./authUser";
 export * from "./authUserEnvelope";

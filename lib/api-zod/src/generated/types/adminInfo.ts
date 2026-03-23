@@ -6,9 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface CousinInfo {
-  /** @nullable */
-  cousinId: string | null;
-  /** @nullable */
-  adminId?: string | null;
+export interface AdminInfo {
+  adminId: string;
 }
