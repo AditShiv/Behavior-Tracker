@@ -8,3 +8,148 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface AuthUser {
+  id: string;
+  /** @nullable */
+  email: string | null;
+  /** @nullable */
+  firstName: string | null;
+  /** @nullable */
+  lastName: string | null;
+  /** @nullable */
+  profileImageUrl: string | null;
+}
+
+export interface AuthUserEnvelope {
+  user: AuthUser | null;
+}
+
+export interface MobileTokenExchangeRequest {
+  /** @minLength 1 */
+  code: string;
+  /** @minLength 1 */
+  code_verifier: string;
+  /** @minLength 1 */
+  redirect_uri: string;
+  /** @minLength 1 */
+  state: string;
+  /** @minLength 1 */
+  nonce?: string;
+}
+
+export interface MobileTokenExchangeSuccess {
+  token: string;
+}
+
+export const LogoutSuccessValue = {
+  success: true,
+} as const;
+export type LogoutSuccess = typeof LogoutSuccessValue;
+
+export interface ErrorEnvelope {
+  error: string;
+}
+
+export interface PointsBalance {
+  userId: string;
+  points: number;
+}
+
+export interface PointsHistoryEntry {
+  id: number;
+  userId: string;
+  amount: number;
+  reason: string;
+  createdAt: string;
+}
+
+export interface PointsHistoryList {
+  entries: PointsHistoryEntry[];
+}
+
+export interface AdjustPointsBody {
+  amount: number;
+  reason: string;
+}
+
+export type RedemptionStatus =
+  (typeof RedemptionStatus)[keyof typeof RedemptionStatus];
+
+export const RedemptionStatus = {
+  pending: "pending",
+  accepted: "accepted",
+  denied: "denied",
+} as const;
+
+export interface Redemption {
+  id: number;
+  userId: string;
+  robuxAmount: number;
+  pointsCost: number;
+  status: RedemptionStatus;
+  /** @nullable */
+  note?: string | null;
+  createdAt: string;
+  /** @nullable */
+  reviewedAt?: string | null;
+}
+
+export interface RedemptionList {
+  redemptions: Redemption[];
+}
+
+export interface CreateRedemptionBody {
+  /** @minimum 1 */
+  robuxAmount: number;
+}
+
+export type ReviewRedemptionBodyAction =
+  (typeof ReviewRedemptionBodyAction)[keyof typeof ReviewRedemptionBodyAction];
+
+export const ReviewRedemptionBodyAction = {
+  accept: "accept",
+  deny: "deny",
+} as const;
+
+export interface ReviewRedemptionBody {
+  action: ReviewRedemptionBodyAction;
+  /** @nullable */
+  note?: string | null;
+}
+
+export interface Notification {
+  id: number;
+  userId: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface NotificationList {
+  notifications: Notification[];
+}
+
+export interface CousinInfo {
+  /** @nullable */
+  cousinId: string | null;
+}
+
+export interface SetCousinBody {
+  cousinId: string;
+}
+
+/**
+ * Opaque session token — Bearer <sid>.
+ */
+export type AuthorizationSessionHeaderParameter = string;
+
+export type BeginBrowserLoginParams = {
+  returnTo?: string;
+};
+
+export type HandleBrowserLoginCallbackParams = {
+  code?: string;
+  state?: string;
+  iss?: string;
+};

@@ -1,0 +1,15 @@
+packages:
+  "framer-motion": "For game-like fluid animations and page transitions"
+  "canvas-confetti": "For celebration effects when redeeming robux"
+  "@types/canvas-confetti": "Type definitions for canvas-confetti"
+  "date-fns": "For human-readable date formatting in history and notifications"
+  "@hookform/resolvers": "Zod validation for points and redemption forms"
+
+images:
+  - path: "artifacts/points-tracker/public/images/gaming-bg.png"
+    description: "Dark moody gaming background with subtle grid patterns, glowing neon purple and cyan geometric accents, high quality, dark aesthetic"
+    aspect_ratio: "16:9"
+
+notes:
+  - Role resolution is determined via API. Admin checks are server-side based on ADMIN_USER_ID env var.
+  - Using generated API client hooks for data fetching and wrapping them locally for cache invalidations.

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Points Tracker"
+version = "1.0.0"
+id = "artifacts/points-tracker"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24349
+
+[services.development]
+run = "pnpm --filter @workspace/points-tracker run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/points-tracker", "run", "build" ]
+publicDir = "artifacts/points-tracker/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24349"
+BASE_PATH = "/"
