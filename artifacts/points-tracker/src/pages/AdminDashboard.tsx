@@ -98,6 +98,47 @@ export function AdminDashboard() {
           <h1 className="text-3xl sm:text-4xl font-display font-bold">Admin Hub</h1>
           <p className="text-muted-foreground mt-1">Manage points, review requests, enforce the rules.</p>
         </div>
+        <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg">
+              <Users className="w-5 h-5 mr-2" />
+              Link Cousin
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="glass-panel border-primary/30 sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-display">Link Your Cousin</DialogTitle>
+            </DialogHeader>
+            <Form {...linkForm}>
+              <form onSubmit={linkForm.handleSubmit(onLinkCousinSubmit)} className="space-y-6">
+                <FormField
+                  control={linkForm.control}
+                  name="cousinId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground/80">Cousin's User ID</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Paste cousin's ID here"
+                          {...field}
+                          className="bg-background/50 h-12 text-lg border-white/10 focus:border-primary"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  className="w-full h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                  disabled={isSettingCousin}
+                >
+                  {isSettingCousin ? <Loader2 className="w-5 h-5 animate-spin" /> : "Link Cousin"}
+                </Button>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
