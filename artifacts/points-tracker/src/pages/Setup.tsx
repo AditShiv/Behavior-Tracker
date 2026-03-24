@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSetCousinId } from "@/hooks/use-admin";
+import { useSetPlayerId } from "@/hooks/use-admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -24,7 +24,7 @@ interface SetupProps {
 export function Setup({ userId, adminId, onComplete }: SetupProps) {
   const [claiming, setClaiming] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { mutate: setCousin, isPending: settingCousin } = useSetCousinId();
+  const { mutate: setCousin, isPending: settingCousin } = useSetPlayerId();
 
   const form = useForm<z.infer<typeof setupSchema>>({
     resolver: zodResolver(setupSchema),
