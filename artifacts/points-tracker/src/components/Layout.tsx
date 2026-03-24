@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Gamepad2, Bell, LogOut, ShieldAlert, LayoutDashboard, Coins } from "lucide-react";
+import { Gamepad2, Bell, LogOut, ShieldAlert, LayoutDashboard, Coins, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useListNotifications } from "@/hooks/use-notifications";
 import { AuthUser } from "@workspace/replit-auth-web";
@@ -55,6 +55,17 @@ export function Layout({ children, user, isCousin, onLogout }: LayoutProps) {
                   variant="ghost" 
                   size="sm" 
                   asChild
+                  className={location === "/cousin/chat" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
+                >
+                  <Link href="/cousin/chat">
+                    <MessageCircle className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Chat</span>
+                  </Link>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  asChild
                   className={location === "/cousin/notifications" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
                 >
                   <Link href="/cousin/notifications" className="relative">
@@ -83,14 +94,11 @@ export function Layout({ children, user, isCousin, onLogout }: LayoutProps) {
                   variant="ghost" 
                   size="sm" 
                   asChild
-                  className={location === "/admin/notifications" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
+                  className={location === "/admin/chat" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
                 >
-                  <Link href="/admin/notifications" className="relative">
-                    <Bell className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Alerts</span>
-                    {unreadCount > 0 && (
-                      <span className="absolute top-1 right-1 sm:top-1.5 sm:right-2 w-2 h-2 rounded-full bg-destructive animate-pulse" />
-                    )}
+                  <Link href="/admin/chat">
+                    <MessageCircle className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Chat</span>
                   </Link>
                 </Button>
               </>

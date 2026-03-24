@@ -13,6 +13,7 @@ import { Setup } from "@/pages/Setup";
 import { AdminDashboard } from "@/pages/AdminDashboard";
 import { CousinDashboard } from "@/pages/CousinDashboard";
 import { Notifications } from "@/pages/Notifications";
+import { Chat } from "@/pages/Chat";
 import NotFound from "@/pages/not-found";
 import type { AuthUser } from "@workspace/replit-auth-web";
 
@@ -99,10 +100,11 @@ function AppContent() {
         <Route path="/" component={() => <Redirect to={isCousin ? "/cousin" : "/admin"} />} />
         
         <Route path="/admin" component={isCousin ? () => <Redirect to="/cousin" /> : AdminDashboard} />
-        <Route path="/admin/notifications" component={isCousin ? () => <Redirect to="/cousin" /> : Notifications} />
+        <Route path="/admin/chat" component={isCousin ? () => <Redirect to="/cousin" /> : () => <Chat user={user} />} />
         
         <Route path="/cousin" component={isCousin ? CousinDashboard : () => <Redirect to="/admin" />} />
         <Route path="/cousin/notifications" component={isCousin ? Notifications : () => <Redirect to="/admin" />} />
+        <Route path="/cousin/chat" component={isCousin ? () => <Chat user={user} /> : () => <Redirect to="/admin" />} />
         
         <Route component={NotFound} />
       </Switch>

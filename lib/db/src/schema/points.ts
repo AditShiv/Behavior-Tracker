@@ -43,8 +43,16 @@ export const appConfigTable = pgTable("app_config", {
   value: text("value").notNull(),
 });
 
+export const messagesTable = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  senderId: varchar("sender_id").notNull().references(() => usersTable.id),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Points = typeof pointsTable.$inferSelect;
 export type PointsHistory = typeof pointsHistoryTable.$inferSelect;
 export type Redemption = typeof redemptionsTable.$inferSelect;
 export type Notification = typeof notificationsTable.$inferSelect;
 export type AppConfig = typeof appConfigTable.$inferSelect;
+export type Message = typeof messagesTable.$inferSelect;
