@@ -6,12 +6,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { 
   PlusCircle, MinusCircle, ShieldAlert, Check, X,
-  Coins, History, MessagesSquare, ArrowRight, Loader2, Gift, SendHorizontal
+  Coins, History, MessagesSquare, ArrowRight, Loader2, Gift, SendHorizontal, Users
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAdjustPoints, useGetMyPoints, useGetPointsHistory } from "@/hooks/use-points";
 import { useListRedemptions, useReviewRedemption, useMarkRedemptionDonated } from "@/hooks/use-redemptions";
+import { useSetCousinId } from "@/hooks/use-admin";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,15 +29,26 @@ const adjustSchema = z.object({
   reason: z.string().min(3, "Reason is required so they know why!"),
 });
 
+const linkCousinSchema = z.object({
+  cousinId: z.string().min(3, "Please enter a valid User ID"),
+});
+
 export function AdminDashboard() {
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const { data: historyData } = useGetPointsHistory();
   const { data: redemptionsData } = useListRedemptions();
   
   const { mutate: adjustPoints, isPending: isAdjusting } = useAdjustPoints();
+  const { mutate: setCousinId, isPending: isSettingCousin } = useSetCousinId();
 
   const form = useForm<z.infer<typeof adjustSchema>>({
     resolver: zodResolver(adjustSchema),
     defaultValues: { amount: 100, action: "add", reason: "" },
+  });
+
+  const linkForm = useForm<z.infer<typeof linkCousinSchema>>({
+    resolver: zodResolver(linkCousinSchema),
+    defaultValues: { cousinId: "" },
   });
 
   function onAdjustSubmit(values: z.infer<typeof adjustSchema>) {
@@ -52,6 +64,24 @@ export function AdminDashboard() {
         },
         onError: (err) => {
           toast.error("Failed to adjust points", { description: err.message });
+        }
+      }
+    );
+  }
+
+  function onLinkCousinSubmit(values: z.infer<typeof linkCousinSchema>) {
+    setCousinId(
+      { data: { cousinId: values.cousinId } },
+      {
+        onSuccess: () => {
+          toast.success("Cousin linked!", { 
+            description: `Successfully linked cousin account.` 
+          });
+          linkForm.reset({ cousinId: "" });
+          setLinkDialogOpen(false);
+        },
+        onError: (err) => {
+          toast.error("Failed to link cousin", { description: err.message });
         }
       }
     );
