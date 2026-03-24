@@ -6,7 +6,7 @@ import {
   getGetCousinIdQueryKey
 } from "@workspace/api-client-react";
 
-export function useGetCousinId() {
+export function useGetPlayerId() {
   return generatedUseGetCousinId({
     query: {
       staleTime: Infinity,
@@ -14,7 +14,7 @@ export function useGetCousinId() {
   });
 }
 
-export function useSetCousinId() {
+export function useSetPlayerId() {
   const queryClient = useQueryClient();
   
   return generatedUseSetCousinId({

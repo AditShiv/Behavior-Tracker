@@ -8,11 +8,11 @@ import { AuthUser } from "@workspace/replit-auth-web";
 interface LayoutProps {
   children: ReactNode;
   user: AuthUser;
-  isCousin: boolean;
+  isPlayer: boolean;
   onLogout: () => void;
 }
 
-export function Layout({ children, user, isCousin, onLogout }: LayoutProps) {
+export function Layout({ children, user, isPlayer, onLogout }: LayoutProps) {
   const [location] = useLocation();
   const { data: notificationsData } = useListNotifications();
   
@@ -38,15 +38,15 @@ export function Layout({ children, user, isCousin, onLogout }: LayoutProps) {
           </div>
 
           <nav className="flex items-center gap-1 sm:gap-2">
-            {isCousin ? (
+            {isPlayer ? (
               <>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   asChild
-                  className={location === "/cousin" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
+                  className={location === "/player" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
                 >
-                  <Link href="/cousin">
+                  <Link href="/player">
                     <LayoutDashboard className="w-4 h-4 mr-2" />
                     <span className="hidden sm:inline">Dashboard</span>
                   </Link>
@@ -55,9 +55,9 @@ export function Layout({ children, user, isCousin, onLogout }: LayoutProps) {
                   variant="ghost" 
                   size="sm" 
                   asChild
-                  className={location === "/cousin/chat" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
+                  className={location === "/player/chat" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
                 >
-                  <Link href="/cousin/chat">
+                  <Link href="/player/chat">
                     <MessageCircle className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">Chat</span>
                   </Link>
@@ -66,9 +66,9 @@ export function Layout({ children, user, isCousin, onLogout }: LayoutProps) {
                   variant="ghost" 
                   size="sm" 
                   asChild
-                  className={location === "/cousin/notifications" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
+                  className={location === "/player/notifications" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
                 >
-                  <Link href="/cousin/notifications" className="relative">
+                  <Link href="/player/notifications" className="relative">
                     <Bell className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">Alerts</span>
                     {unreadCount > 0 && (

@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2 } from "lucide-react";
 
-import { useGetCousinId } from "@/hooks/use-admin";
+import { useGetPlayerId } from "@/hooks/use-admin";
 
 import { Layout } from "@/components/Layout";
 import { Login } from "@/pages/Login";
@@ -74,9 +74,9 @@ function useCustomAuth() {
 function AppContent() {
   const { user, isLoading: authLoading, login, logout } = useCustomAuth();
   
-  const { data: cousinData, isLoading: cousinLoading, refetch: refetchCousin } = useGetCousinId();
+  const { data: playerData, isLoading: playerLoading, refetch: refetchPlayer } = useGetPlayerId();
 
-  if (authLoading || (user && cousinLoading)) {
+  if (authLoading || (user && playerLoading)) {
     return <LoadingScreen />;
   }
 
@@ -84,27 +84,27 @@ function AppContent() {
     return <Login onLogin={login} />;
   }
 
-  const cousinId = cousinData?.cousinId ?? null;
-  const adminId = cousinData?.adminId ?? null;
+  const playerId = playerData?.playerId ?? null;
+  const adminId = playerData?.adminId ?? null;
 
-  const isCousin = cousinId !== null && user.id === cousinId;
+  const isPlayer = playerId !== null && user.id === playerId;
   const isAdmin = adminId !== null && user.id === adminId;
 
-  if (!adminId || (!isCousin && !isAdmin)) {
-    return <Setup userId={user.id} adminId={adminId} onComplete={() => refetchCousin()} />;
+  if (!adminId || (!isPlayer && !isAdmin)) {
+    return <Setup userId={user.id} adminId={adminId} onComplete={() => refetchPlayer()} />;
   }
 
   return (
-    <Layout user={user} isCousin={isCousin} onLogout={logout}>
+    <Layout user={user} isPlayer={isPlayer} onLogout={logout}>
       <Switch>
-        <Route path="/" component={() => <Redirect to={isCousin ? "/cousin" : "/admin"} />} />
+        <Route path="/" component={() => <Redirect to={isPlayer ? "/player" : "/admin"} />} />
         
-        <Route path="/admin" component={isCousin ? () => <Redirect to="/cousin" /> : AdminDashboard} />
-        <Route path="/admin/chat" component={isCousin ? () => <Redirect to="/cousin" /> : () => <Chat user={user} />} />
+        <Route path="/admin" component={isPlayer ? () => <Redirect to="/player" /> : AdminDashboard} />
+        <Route path="/admin/chat" component={isPlayer ? () => <Redirect to="/player" /> : () => <Chat user={user} />} />
         
-        <Route path="/cousin" component={isCousin ? CousinDashboard : () => <Redirect to="/admin" />} />
-        <Route path="/cousin/notifications" component={isCousin ? Notifications : () => <Redirect to="/admin" />} />
-        <Route path="/cousin/chat" component={isCousin ? () => <Chat user={user} /> : () => <Redirect to="/admin" />} />
+        <Route path="/player" component={isPlayer ? CousinDashboard : () => <Redirect to="/admin" />} />
+        <Route path="/player/notifications" component={isPlayer ? Notifications : () => <Redirect to="/admin" />} />
+        <Route path="/player/chat" component={isPlayer ? () => <Chat user={user} /> : () => <Redirect to="/admin" />} />
         
         <Route component={NotFound} />
       </Switch>

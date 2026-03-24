@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 import { useAdjustPoints, useGetMyPoints, useGetPointsHistory } from "@/hooks/use-points";
 import { useListRedemptions, useReviewRedemption, useMarkRedemptionDonated } from "@/hooks/use-redemptions";
-import { useSetCousinId, useGetCousinId, useGetUserInfo } from "@/hooks/use-admin";
+import { useSetPlayerId, useGetPlayerId, useGetUserInfo } from "@/hooks/use-admin";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,28 +29,28 @@ const adjustSchema = z.object({
   reason: z.string().min(3, "Reason is required so they know why!"),
 });
 
-const linkCousinSchema = z.object({
-  cousinId: z.string().min(3, "Please enter a valid User ID"),
+const linkPlayerSchema = z.object({
+  playerId: z.string().min(3, "Please enter a valid User ID"),
 });
 
 export function AdminDashboard() {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const { data: historyData } = useGetPointsHistory();
   const { data: redemptionsData } = useListRedemptions();
-  const { data: cousinData } = useGetCousinId();
-  const { data: cousinInfo } = useGetUserInfo(cousinData?.cousinId ?? null);
+  const { data: playerData } = useGetPlayerId();
+  const { data: playerInfo } = useGetUserInfo(playerData?.playerId ?? null);
   
   const { mutate: adjustPoints, isPending: isAdjusting } = useAdjustPoints();
-  const { mutate: setCousinId, isPending: isSettingCousin } = useSetCousinId();
+  const { mutate: setPlayerId, isPending: isSettingPlayer } = useSetPlayerId();
 
   const form = useForm<z.infer<typeof adjustSchema>>({
     resolver: zodResolver(adjustSchema),
     defaultValues: { amount: 100, action: "add", reason: "" },
   });
 
-  const linkForm = useForm<z.infer<typeof linkCousinSchema>>({
-    resolver: zodResolver(linkCousinSchema),
-    defaultValues: { cousinId: "" },
+  const linkForm = useForm<z.infer<typeof linkPlayerSchema>>({
+    resolver: zodResolver(linkPlayerSchema),
+    defaultValues: { playerId: "" },
   });
 
   function onAdjustSubmit(values: z.infer<typeof adjustSchema>) {
@@ -71,19 +71,19 @@ export function AdminDashboard() {
     );
   }
 
-  function onLinkCousinSubmit(values: z.infer<typeof linkCousinSchema>) {
-    setCousinId(
-      { data: { cousinId: values.cousinId } },
+  function onLinkPlayerSubmit(values: z.infer<typeof linkPlayerSchema>) {
+    setPlayerId(
+      { data: { playerId: values.playerId } },
       {
         onSuccess: () => {
-          toast.success("Cousin linked!", { 
-            description: `Successfully linked cousin account.` 
+          toast.success("Player linked!", { 
+            description: `Successfully linked player account.` 
           });
-          linkForm.reset({ cousinId: "" });
+          linkForm.reset({ playerId: "" });
           setLinkDialogOpen(false);
         },
         onError: (err) => {
-          toast.error("Failed to link cousin", { description: err.message });
+          toast.error("Failed to link player", { description: err.message });
         }
       }
     );
