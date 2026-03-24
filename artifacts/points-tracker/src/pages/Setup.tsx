@@ -107,11 +107,45 @@ export function Setup({ userId, adminId, onComplete }: SetupProps) {
     );
   }
 
-  // Check if current user is the admin by seeing if they can access the set-cousin endpoint
-  // For now, we'll show admin form to anyone if adminId exists, but cousin sees waiting screen
-  // The actual role check happens server-side when they submit
-  const isFormSubmitted = form.formState.isDirty;
+  const currentUserIsAdmin = userId === adminId;
 
+  // If admin ID is set but current user is not the admin, show waiting screen (cousin)
+  if (!currentUserIsAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md"
+        >
+          <Card className="p-8 glass-panel border-primary/30 shadow-neon">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                <ShieldCheck className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-display font-bold text-center mb-2">Setup in Progress</h2>
+            <p className="text-center text-muted-foreground mb-4">
+              The admin is setting everything up. Please share your User ID with them.
+            </p>
+            <div className="bg-muted/40 rounded-lg p-3 mb-4 flex gap-2 items-start">
+              <Info className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                Once the admin links you, you'll automatically have access to the game.
+              </p>
+            </div>
+            <div className="bg-card/50 rounded-lg p-3 mb-6 text-center border-2 border-primary/50">
+              <p className="text-xs text-muted-foreground mb-2">Your User ID</p>
+              <p className="font-mono text-lg text-primary font-bold select-all break-all">{userId}</p>
+              <p className="text-xs text-muted-foreground mt-2">👆 Copy and share this with the admin</p>
+            </div>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Admin screen - show the linking form
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <motion.div
@@ -125,53 +159,48 @@ export function Setup({ userId, adminId, onComplete }: SetupProps) {
               <ShieldCheck className="w-8 h-8 text-primary" />
             </div>
           </div>
-          <h2 className="text-2xl font-display font-bold text-center mb-2">Setup in Progress</h2>
+          <h2 className="text-2xl font-display font-bold text-center mb-2">Link Your Cousin</h2>
           <p className="text-center text-muted-foreground mb-4">
-            The admin is setting everything up. Please share your User ID with them.
+            Enter your cousin's User ID to link their account.
           </p>
           <div className="bg-muted/40 rounded-lg p-3 mb-4 flex gap-2 items-start">
             <Info className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
             <p className="text-xs text-muted-foreground">
-              Once the admin links you, you'll automatically have access to the game.
+              Have your cousin log in first, then they can share their User ID from the waiting screen.
             </p>
           </div>
-          <div className="bg-card/50 rounded-lg p-3 mb-6 text-center border-2 border-primary/50">
-            <p className="text-xs text-muted-foreground mb-2">Your User ID</p>
-            <p className="font-mono text-lg text-primary font-bold select-all break-all">{userId}</p>
-            <p className="text-xs text-muted-foreground mt-2">👆 Copy and share this with the admin</p>
+          <div className="bg-card/50 rounded-lg p-3 mb-6 text-center">
+            <p className="text-xs text-muted-foreground mb-1">Your User ID</p>
+            <p className="font-mono text-sm text-primary font-bold select-all">{userId}</p>
           </div>
-
-          <div className="bg-muted/30 rounded-lg p-4 text-center">
-            <p className="text-sm text-muted-foreground mb-2">Admin Form (if you're the admin):</p>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="cousinId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground/70 text-xs">Cousin's User ID</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Paste cousin's ID here"
-                          {...field}
-                          className="bg-background/50 h-10 text-sm border-white/10 focus:border-primary"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="w-full h-10 text-sm font-bold bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                  disabled={settingCousin}
-                >
-                  {settingCousin ? <Loader2 className="w-4 h-4 animate-spin" /> : "Link Cousin"}
-                </Button>
-              </form>
-            </Form>
-          </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="cousinId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground/80">Cousin's User ID</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Paste cousin's ID here"
+                        {...field}
+                        className="bg-background/50 h-12 text-lg border-white/10 focus:border-primary focus:ring-primary/50"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full h-12 text-lg font-bold bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg hover:shadow-primary/50 transition-all"
+                disabled={settingCousin}
+              >
+                {settingCousin ? <Loader2 className="w-5 h-5 animate-spin" /> : "Link Cousin & Start"}
+              </Button>
+            </form>
+          </Form>
         </Card>
       </motion.div>
     </div>
