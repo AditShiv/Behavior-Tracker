@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gamepad2, ArrowRight, Loader2 } from "lucide-react";
+import { Gamepad2, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface LoginProps {
@@ -14,17 +14,19 @@ export function Login({ onLogin }: LoginProps) {
   const [isSignup, setIsSignup] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     
     if (!username.trim() || !password.trim()) {
-      toast.error("Please fill in all fields");
+      setError("Please fill in all fields");
       return;
     }
 
     if (isSignup && password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      setError("Password must be at least 6 characters");
       return;
     }
 
@@ -41,16 +43,21 @@ export function Login({ onLogin }: LoginProps) {
 
       if (!response.ok) {
         const data = await response.json();
-        toast.error(data.error || "Authentication failed");
+        const errorMsg = data.error || "Authentication failed";
+        setError(errorMsg);
+        toast.error(errorMsg);
         return;
       }
 
       toast.success(isSignup ? "Account created!" : "Login successful!");
       setUsername("");
       setPassword("");
+      setError(null);
       onLogin();
     } catch (err) {
-      toast.error("Network error, try again");
+      const errorMsg = "Network error, try again";
+      setError(errorMsg);
+      toast.error(errorMsg);
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -83,9 +90,20 @@ export function Login({ onLogin }: LoginProps) {
           Robux Tracker
         </h1>
         
-        <p className="text-muted-foreground text-lg mb-10 leading-relaxed">
+        <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
           {isSignup ? "Create an account to get started" : "Level up your behavior, earn points, and redeem them for Robux."}
         </p>
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3"
+          >
+            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <p className="text-destructive text-sm font-medium">{error}</p>
+          </motion.div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4 mb-6">
           <Input
