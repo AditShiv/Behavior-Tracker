@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 import { useAdjustPoints, useGetMyPoints, useGetPointsHistory } from "@/hooks/use-points";
 import { useListRedemptions, useReviewRedemption, useMarkRedemptionDonated } from "@/hooks/use-redemptions";
-import { useSetCousinId } from "@/hooks/use-admin";
+import { useSetCousinId, useGetCousinId, useGetUserInfo } from "@/hooks/use-admin";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,8 @@ export function AdminDashboard() {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const { data: historyData } = useGetPointsHistory();
   const { data: redemptionsData } = useListRedemptions();
+  const { data: cousinData } = useGetCousinId();
+  const { data: cousinInfo } = useGetUserInfo(cousinData?.cousinId ?? null);
   
   const { mutate: adjustPoints, isPending: isAdjusting } = useAdjustPoints();
   const { mutate: setCousinId, isPending: isSettingCousin } = useSetCousinId();
@@ -150,7 +152,7 @@ export function AdminDashboard() {
             </div>
             <div>
               <h2 className="text-2xl font-bold font-display">Cousin's Points Balance</h2>
-              <p className="text-muted-foreground text-sm">Current status</p>
+              {cousinInfo && <p className="text-muted-foreground text-sm">@{cousinInfo.username}</p>}
             </div>
           </div>
           <div className="text-right">

@@ -158,6 +158,33 @@ router.post("/auth/signup", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/users/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  
+  try {
+    const users = await db
+      .select({
+        id: usersTable.id,
+        username: usersTable.username,
+        firstName: usersTable.firstName,
+        lastName: usersTable.lastName,
+        email: usersTable.email,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, id));
+    
+    if (users.length === 0) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+    
+    res.json(users[0]);
+  } catch (err) {
+    req.log.error({ err }, "Failed to fetch user");
+    res.status(500).json({ error: "Failed to fetch user" });
+  }
+});
+
 router.get("/logout", async (req: Request, res: Response) => {
   const sid = getSessionId(req);
   await clearSession(res, sid);
