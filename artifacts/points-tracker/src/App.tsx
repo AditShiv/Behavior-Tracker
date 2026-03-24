@@ -1,10 +1,10 @@
+import { useEffect, useState } from "react";
 import { Switch, Route, Redirect, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2 } from "lucide-react";
 
-import { useAuth } from "@workspace/replit-auth-web";
 import { useGetCousinId } from "@/hooks/use-admin";
 
 import { Layout } from "@/components/Layout";
@@ -14,8 +14,11 @@ import { AdminDashboard } from "@/pages/AdminDashboard";
 import { CousinDashboard } from "@/pages/CousinDashboard";
 import { Notifications } from "@/pages/Notifications";
 import NotFound from "@/pages/not-found";
+import type { AuthUser } from "@workspace/replit-auth-web";
 
 const queryClient = new QueryClient();
+
+type User = AuthUser;
 
 function LoadingScreen() {
   return (
@@ -26,8 +29,49 @@ function LoadingScreen() {
   );
 }
 
+function useCustomAuth() {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const response = await fetch("/api/auth/user", {
+          credentials: "include",
+        });
+        const data = await response.json();
+        setUser(data.user || null);
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
+  const login = () => {
+    window.location.reload();
+  };
+
+  const logout = async () => {
+    try {
+      await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+    window.location.reload();
+  };
+
+  return { user, isLoading, login, logout };
+}
+
 function AppContent() {
-  const { user, isLoading: authLoading, login, logout } = useAuth();
+  const { user, isLoading: authLoading, login, logout } = useCustomAuth();
   
   const { data: cousinData, isLoading: cousinLoading, refetch: refetchCousin } = useGetCousinId();
 

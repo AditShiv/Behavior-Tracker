@@ -1,12 +1,62 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Gamepad2, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Gamepad2, ArrowRight, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface LoginProps {
   onLogin: () => void;
 }
 
 export function Login({ onLogin }: LoginProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSignup, setIsSignup] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    
+    if (!username.trim() || !password.trim()) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (isSignup && password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const endpoint = isSignup ? "/api/auth/signup" : "/api/auth/login";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        toast.error(data.error || "Authentication failed");
+        return;
+      }
+
+      toast.success(isSignup ? "Account created!" : "Login successful!");
+      setUsername("");
+      setPassword("");
+      onLogin();
+    } catch (err) {
+      toast.error("Network error, try again");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-background">
       {/* Dynamic Background */}
@@ -34,17 +84,54 @@ export function Login({ onLogin }: LoginProps) {
         </h1>
         
         <p className="text-muted-foreground text-lg mb-10 leading-relaxed">
-          Level up your behavior, earn points, and redeem them for Robux. Welcome to the ultimate family game.
+          {isSignup ? "Create an account to get started" : "Level up your behavior, earn points, and redeem them for Robux."}
         </p>
 
-        <Button 
-          onClick={onLogin}
-          size="lg"
-          className="w-full h-14 text-lg font-bold rounded-2xl bg-white text-black hover:bg-white/90 hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95 group"
-        >
-          <span>Enter the Game</span>
-          <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-        </Button>
+        <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+          <Input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            disabled={isLoading}
+            className="h-12 bg-background/50 border-white/10 focus:border-primary text-lg"
+          />
+          
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
+            className="h-12 bg-background/50 border-white/10 focus:border-primary text-lg"
+          />
+
+          <Button 
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-14 text-lg font-bold rounded-2xl bg-white text-black hover:bg-white/90 hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95 group"
+          >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <span>{isSignup ? "Create Account" : "Enter the Game"}</span>
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
+          </Button>
+        </form>
+
+        <div className="text-sm text-muted-foreground">
+          {isSignup ? "Already have an account? " : "Don't have an account? "}
+          <button
+            onClick={() => setIsSignup(!isSignup)}
+            disabled={isLoading}
+            className="text-primary hover:underline font-semibold"
+          >
+            {isSignup ? "Login" : "Sign up"}
+          </button>
+        </div>
       </motion.div>
     </div>
   );
