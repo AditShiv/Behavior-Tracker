@@ -79,6 +79,20 @@ export function Layout({ children, user, isCousin, onLogout }: LayoutProps) {
                     <span className="hidden sm:inline">Admin Hub</span>
                   </Link>
                 </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  asChild
+                  className={location === "/admin/notifications" ? "bg-white/10 text-primary" : "text-muted-foreground hover:text-foreground"}
+                >
+                  <Link href="/admin/notifications" className="relative">
+                    <Bell className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Alerts</span>
+                    {unreadCount > 0 && (
+                      <span className="absolute top-1 right-1 sm:top-1.5 sm:right-2 w-2 h-2 rounded-full bg-destructive animate-pulse" />
+                    )}
+                  </Link>
+                </Button>
               </>
             )}
 
