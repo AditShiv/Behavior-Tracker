@@ -141,6 +141,25 @@ export function AdminDashboard() {
         </Dialog>
       </div>
 
+      {/* Cousin's Points Overview */}
+      <Card className="glass-panel p-6 sm:p-8 border-accent/30">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-accent/20 rounded-lg">
+              <Coins className="w-6 h-6 text-accent" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold font-display">Cousin's Points Balance</h2>
+              <p className="text-muted-foreground text-sm">Current status</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-4xl font-display font-bold text-accent">{historyData?.entries ? historyData.entries.reduce((sum, e) => sum + e.amount, 500) : 500}</p>
+            <p className="text-muted-foreground text-sm">points</p>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Adjust Points Form */}
@@ -289,9 +308,9 @@ export function AdminDashboard() {
       )}
 
       <Tabs defaultValue="history" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-[400px] h-12 bg-background/50 p-1 border border-white/10">
-          <TabsTrigger value="history" className="text-base rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Activity History</TabsTrigger>
-          <TabsTrigger value="reviewed" className="text-base rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All Requests</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 max-w-[600px] h-12 bg-background/50 p-1 border border-white/10">
+          <TabsTrigger value="history" className="text-base rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Cousin's Points History</TabsTrigger>
+          <TabsTrigger value="reviewed" className="text-base rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Robux Redemption Requests</TabsTrigger>
         </TabsList>
         
         <TabsContent value="history" className="mt-6">
